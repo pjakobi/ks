@@ -1,0 +1,9 @@
+dn: ###SUFFIX###
+objectclass: dcObject
+objectclass: organization
+o: Organization
+dc: ###DC###
+
+dn: cn=Manager,###SUFFIX###
+objectclass: organizationalRole
+cn: Manager

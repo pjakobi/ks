@@ -1,0 +1,15 @@
+[general]
+config_version = 2
+
+[slapd]
+root_dn = cn=Manager
+root_password = ###DSPASSWD###
+port = 390
+secure_port = 1575
+
+[backend-userroot]
+sample_entries = yes
+suffix = ###SUFFIX###
+
+
+

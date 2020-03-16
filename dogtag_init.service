@@ -1,0 +1,13 @@
+[Unit]
+Description=Setup dogtag
+After=dirsrv.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/dscreate from-file /etc/dirsrv/config/###DC###.inf
+ExecStart=nmcli dev wifi connect jakobi password 9876543210
+ExecStart=/usr/sbin/dogtag_init.sh
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target
