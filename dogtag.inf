@@ -15,8 +15,7 @@ pki_ds_database=ca
 pki_ds_bind_dn=cn=Manager
 pki_ds_password=###DSPASSWD###
 
-#pki_security_domain_name=THALES
-pki_security_domain_name=###DC###
+pki_security_domain_name=###DCCAP###
 
 pki_token_password=###PASSWD###
 

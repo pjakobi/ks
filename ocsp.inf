@@ -2,6 +2,7 @@
 pki_server_database_password=###PASSWD###
 
 [OCSP]
+pki_admin_cert_file=ca_admin.cert
 pki_admin_email=ocspadmin@thales.com
 pki_admin_name=ocspadmin
 pki_admin_nickname=ocspadmin
@@ -12,11 +13,13 @@ pki_client_database_password=###PASSWD###
 pki_client_database_purge=False
 pki_client_pkcs12_password=###PASSWD###
 
-pki_ds_base_dn=dc=ocsp,dc=pki,dc=thales,dc=com
+pki_ds_base_dn=dc=ocsp,dc=pki,###SUFFIX###
+pki_ds_ldap_port=390
 pki_ds_database=ocsp
+pki_ds_bind_dn=cn=Manager
 pki_ds_password=###DSPASSWD###
 
-pki_security_domain_name=THALES
+pki_security_domain_name=###DCCAP###
 pki_security_domain_user=caadmin
 pki_security_domain_password=###PASSWD###
 
