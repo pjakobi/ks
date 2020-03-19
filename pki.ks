@@ -86,6 +86,7 @@ SUFFIX=dc=thales,dc=com
 KS_SERVER=10.0.1.3
 BASE=/pub/ks/pki
 DC=thales
+DCCAP=`echo $DC | tr '[:lower:]' '[:upper:]'`
 DSPASSWD=thales78
 
 KEYFILE="/etc/pki/CA/private/${DC}_root.key"
@@ -99,6 +100,7 @@ set_parms()
 	sed -i "s/###DSPASSWD###/$DSPASSWD/g" $1
 	sed -i "s/###SUFFIX###/$SUFFIX/g" $1
 	sed -i "s/###DC###/$DC/g" $1
+	sed -i "s/###DCCAP###/$DCCAP/g" $1
 }
 
 echo ""
@@ -155,8 +157,7 @@ wget -q -O /root/$DC.cnf http://$KS_SERVER/$BASE/openssl.cnf
 set_parms /root/$DC.cnf 
 openssl genrsa -out $KEYFILE 2048
 openssl req -new -x509 -key $KEYFILE -out $CERTFILE -config /root/$DC.cnf -days 365 -set_serial 1
-echo $PASSWD > /root/password.txt
-openssl pkcs12 -export -in $CERTFILE -inkey $KEYFILE -out $P12FILE -name "Root CA Certificate" -passout file:/root/password.txt
+openssl pkcs12 -export -in $CERTFILE -inkey $KEYFILE -out $P12FILE -name "Root CA Certificate" -passout env:PASSWD
 
 
 echo
@@ -173,7 +174,7 @@ set_parms /root/dogtag.inf
 wget -q -O /usr/sbin/dogtag_init.sh http://$KS_SERVER/$BASE/dogtag_init.sh
 set_parms /usr/sbin/dogtag_init.sh 
 chmod 700 /usr/sbin/dogtag_init.sh
-echo $PASSWD > /root/password.txt
+systemctl enable pki-tomcatd@pki-tomcat.service
 
 echo
 echo "Dogtag init (runs at next boot as a service)"
@@ -182,6 +183,13 @@ wget -q -O /etc/systemd/system/dogtag_init.service http://$KS_SERVER/$BASE/dogta
 set_parms /etc/systemd/system/dogtag_init.service
 systemctl enable dogtag_init
 
+echo
+echo "OCSP setup"
+echo "----------"
+wget -q -O /root/ocsp.inf http://$KS_SERVER/$BASE/ocsp.inf
+set_parms /root/ocsp.inf 
+
+dnf -y update
 
 echo 
 echo " ================== "
