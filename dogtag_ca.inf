@@ -17,10 +17,17 @@ pki_ds_password=###DSPASSWD###
 
 pki_security_domain_name=###DCCAP###
 
-pki_token_password=###PASSWD###
 
 pki_existing=True
-pki_ca_signing_nickname=###DC### CA Certificate
+pki_ca_signing_nickname=###DC###CaCert
+pki_ocsp_signing_nickname=ca_ocsp_signing
+pki_audit_signing_nickname=ca_audit_signing
+pki_sslserver_nickname=sslserver
+pki_subsystem_nickname=subsystem
+
+pki_external=True
+pki_external_step_two=False
+
 pki_ca_signing_csr_path=/tmp/ca.csr
 pki_pkcs12_path=/etc/pki/CA/certs/###DC###_root.p12
 pki_pkcs12_password=###PASSWD###
