@@ -89,9 +89,14 @@ DC=thales
 DCCAP=`echo $DC | tr '[:lower:]' '[:upper:]'`
 DSPASSWD=thales78
 
-KEYFILE="/etc/pki/CA/private/${DC}_root.key"
-CERTFILE="/etc/pki/CA/certs/${DC}_root.crt"
-P12FILE="/etc/pki/CA/certs/${DC}_root.p12"
+NSSDB=/etc/pki/pki-tomcat/alias
+KEYBASE=/etc/pki/pki-tomcat/crypto
+KEYFILE=${KEYBASE}/${DC}_root.key
+CASGNKEY=${KEYBASE}/${DC}_ca.key
+CERTF=${KEYBASE}/${DC}_root.crt
+CAFILE=${KEYBASE}/${DC}_ca.crt
+CACSR=${KEYBASE}/${DC}_ca_signing.csr
+P12FILE=${KEYBASE}/${DC}_root.p12
 
 ### Set environment variables to their actual value
 set_parms()
@@ -101,6 +106,14 @@ set_parms()
 	sed -i "s/###SUFFIX###/$SUFFIX/g" $1
 	sed -i "s/###DC###/$DC/g" $1
 	sed -i "s/###DCCAP###/$DCCAP/g" $1
+	sed -i "s:###CERTF###:$CERTF:g" $1
+	sed -i "s:###CAFILE###:$CAFILE:g" $1
+	sed -i "s:###P12FILE###:$P12FILE:g" $1
+	sed -i "s:###KEYFILE###:$KEYFILE:g" $1
+	sed -i "s:###CASGNKEY###:$CASGNKEY:g" $1
+	sed -i "s:###CACSR###:$CACSR:g" $1
+	sed -i "s:###KEYBASE###:$KEYBASE:g" $1
+	sed -i "s:###NSSDB###:$NSSDB:g" $1
 }
 
 echo ""
@@ -130,9 +143,7 @@ echo "-----------------------"
 echo "Building database $SUFFIX"
 cp /usr/share/openldap-servers/DB_CONFIG.example /var/lib/ldap/DB_CONFIG
 wget -q -O /etc/openldap/$DC.conf http://$KS_SERVER/$BASE/slapd.conf
-sed -i "s/###PASSWD###/$PASSWD/" /etc/openldap/$DC.conf 
-sed -i "s/###SUFFIX###/$SUFFIX/" /etc/openldap/$DC.conf 
-sed -i "s/###DC###/$DC/" /etc/openldap/$DC.conf 
+set_parms /etc/openldap/$DC.conf 
 echo "slaptest $SUFFIX"
 rm -fr /etc/openldap/slapd.d
 mkdir /etc/openldap/slapd.d /var/lib/ldap/$DC
@@ -143,10 +154,9 @@ chown -R ldap: /etc/openldap/slapd.d
 echo "Starting openldap"
 /usr/sbin/slapd -u ldap -h "ldap:/// ldaps:/// ldapi:///" -F /etc/openldap/slapd.d
 
-echo "Openldap initialization"
+echo "Openldap init load"
 wget -q -O /etc/openldap/init.ldif http://$KS_SERVER/$BASE/init.ldif
-sed -i "s/###SUFFIX###/$SUFFIX/" /etc/openldap/init.ldif
-sed -i "s/###DC###/$DC/" /etc/openldap/init.ldif
+set_parms /etc/openldap/init.ldif 
 ldapadd -x -D cn=Manager,$SUFFIX -w $PASSWD -f /etc/openldap/init.ldif
 systemctl enable slapd
 
@@ -155,10 +165,6 @@ echo "root CA setup"
 echo "-------------"
 wget -q -O /root/$DC.cnf http://$KS_SERVER/$BASE/openssl.cnf
 set_parms /root/$DC.cnf 
-openssl genrsa -out $KEYFILE 2048
-openssl req -new -x509 -key $KEYFILE -out $CERTFILE -config /root/$DC.cnf -days 365 -set_serial 1
-openssl pkcs12 -export -in $CERTFILE -inkey $KEYFILE -out $P12FILE -name "Root CA Certificate" -passout env:PASSWD
-
 
 echo
 echo "389ds initialization"
@@ -183,13 +189,13 @@ wget -q -O /etc/systemd/system/dogtag_init.service http://$KS_SERVER/$BASE/dogta
 set_parms /etc/systemd/system/dogtag_init.service
 systemctl enable dogtag_init
 
-echo
-echo "OCSP setup"
-echo "----------"
-wget -q -O /root/ocsp.inf http://$KS_SERVER/$BASE/ocsp.inf
-set_parms /root/ocsp.inf 
+#echo
+#echo "OCSP setup"
+#echo "----------"
+#wget -q -O /root/ocsp.inf http://$KS_SERVER/$BASE/ocsp.inf
+#set_parms /root/ocsp.inf 
 
-dnf -y update
+dnf -qy update
 
 echo 
 echo " ================== "
