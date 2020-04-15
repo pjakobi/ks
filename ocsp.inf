@@ -1,8 +1,5 @@
-[DEFAULT]
-pki_server_database_password=###PASSWD###
-
 [OCSP]
-pki_admin_cert_file=ca_admin.cert
+pki_admin_cert_file=/root/.dogtag/pki-tomcat/ca_admin.cert
 pki_admin_email=ocspadmin@thales.com
 pki_admin_name=ocspadmin
 pki_admin_nickname=ocspadmin
@@ -12,6 +9,8 @@ pki_admin_uid=ocspadmin
 pki_client_database_password=###PASSWD###
 pki_client_database_purge=False
 pki_client_pkcs12_password=###PASSWD###
+
+pki_server_database_password=###PASSWD###
 
 pki_ds_base_dn=dc=ocsp,dc=pki,###SUFFIX###
 pki_ds_ldap_port=390
@@ -28,11 +27,11 @@ pki_subsystem_nickname=subsystem
 pki_sslserver_nickname=sslserver
 pki_audit_signing_nickname=ocsp_audit_signing
 
-pki_external=True
-pki_external_step_two=False
+#pki_external=True
+#pki_external_step_two=False
 
-pki_ocsp_signing_csr_path=ocsp_signing.csr
-pki_subsystem_csr_path=subsystem.csr
-pki_sslserver_csr_path=sslserver.csr
-pki_audit_signing_csr_path=ocsp_audit_signing.csr
-pki_admin_csr_path=ocsp_admin.csr
+#pki_ocsp_signing_csr_path=ocsp_signing.csr
+#pki_subsystem_csr_path=subsystem.csr
+#pki_sslserver_csr_path=sslserver.csr
+#pki_audit_signing_csr_path=ocsp_audit_signing.csr
+#pki_admin_csr_path=ocsp_admin.csr

@@ -68,6 +68,7 @@ sshpass
 openldap-servers
 openldap-clients
 
+tomcat-admin-webapps
 %end
 
 
@@ -81,8 +82,10 @@ echo " ============================================ "
 
 # Change me
 USER=pascal
+USERBASENAME=/home/${USER}/${USER}
 PASSWD=thales
 SUFFIX=dc=thales,dc=com
+X509SUBJ=/C=FR/O=Thales/CN=${USER}/
 KS_SERVER=10.0.1.3
 BASE=/pub/ks/pki
 DC=thales
@@ -114,6 +117,9 @@ set_parms()
 	sed -i "s:###CACSR###:$CACSR:g" $1
 	sed -i "s:###KEYBASE###:$KEYBASE:g" $1
 	sed -i "s:###NSSDB###:$NSSDB:g" $1
+	sed -i "s:###USER###:$USER:g" $1
+	sed -i "s:###USERBASENAME###:$USERBASENAME:g" $1
+	sed -i "s:###X509SUBJ###:$X509SUBJ:g" $1
 }
 
 echo ""
@@ -161,10 +167,12 @@ ldapadd -x -D cn=Manager,$SUFFIX -w $PASSWD -f /etc/openldap/init.ldif
 systemctl enable slapd
 
 echo
-echo "root CA setup"
+echo "openssl setup"
 echo "-------------"
 wget -q -O /root/$DC.cnf http://$KS_SERVER/$BASE/openssl.cnf
 set_parms /root/$DC.cnf 
+wget -q -O /root/client.cnf http://$KS_SERVER/$BASE/openssl.cnf
+set_parms /root/client.cnf 
 
 echo
 echo "389ds initialization"
@@ -175,8 +183,8 @@ set_parms /etc/dirsrv/config/$DC.inf
 echo
 echo "CA setup"
 echo "--------"
-wget -q -O /root/dogtag.inf http://$KS_SERVER/$BASE/dogtag.inf
-set_parms /root/dogtag.inf 
+wget -q -O /root/ca.inf http://$KS_SERVER/$BASE/ca.inf
+set_parms /root/ca.inf 
 wget -q -O /usr/sbin/dogtag_init.sh http://$KS_SERVER/$BASE/dogtag_init.sh
 set_parms /usr/sbin/dogtag_init.sh 
 chmod 700 /usr/sbin/dogtag_init.sh
@@ -189,13 +197,14 @@ wget -q -O /etc/systemd/system/dogtag_init.service http://$KS_SERVER/$BASE/dogta
 set_parms /etc/systemd/system/dogtag_init.service
 systemctl enable dogtag_init
 
-#echo
-#echo "OCSP setup"
-#echo "----------"
-#wget -q -O /root/ocsp.inf http://$KS_SERVER/$BASE/ocsp.inf
-#set_parms /root/ocsp.inf 
+echo
+echo "OCSP setup"
+echo "----------"
+wget -q -O /root/ocsp.inf http://$KS_SERVER/$BASE/ocsp.inf
+set_parms /root/ocsp.inf 
 
 dnf -qy update
+wget wget -q -O /root/keycloak-9.0.2.tar.gz http://$KS_SERVER/keycloak-9.0.2.tar.gz
 
 echo 
 echo " ================== "
