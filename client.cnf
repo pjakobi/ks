@@ -1,0 +1,18 @@
+# client certificate request
+
+[ req ]
+default_bits            = 2048                  # RSA key size
+encrypt_key             = no                    # Protect private key
+default_md              = sha1                  # MD to use
+utf8                    = yes                   # Input is UTF-8
+string_mask             = utf8only              # Emit UTF-8 strings
+prompt                  = yes                   # Prompt for DN
+req_extensions          = client_reqext         # Desired extensions
+distinguished_name      = dn                    # Desired extensions
+
+[ client_reqext ]
+keyUsage                = critical,digitalSignature
+extendedKeyUsage        = clientAuth
+subjectKeyIdentifier    = hash
+
+[dn]
